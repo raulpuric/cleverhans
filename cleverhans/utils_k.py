@@ -1,7 +1,13 @@
 from keras import backend as K
 from keras.optimizers import Adadelta
+from keras.metrics import categorical_accuracy
+import math
+import time
 
-def k_model_loss(y, model, mean=True):
+import gflags
+FLAGS = gflags.FLAGS
+
+def k_model_loss(y, model, mean=True, predictions_adv=None):
     """
     Define loss of TF graph
     :param y: correct labels
@@ -11,9 +17,13 @@ def k_model_loss(y, model, mean=True):
     """
     if mean:
         # Return mean of the loss
+        if predictions_adv is not None:
+            return (K.mean(K.categorical_crossentropy(y, model)) + K.mean(K.categorical_crossentropy(y, predictions_adv)))/2
         return K.mean(K.categorical_crossentropy(y, model))
     else:
         # Return a vector with the loss per sample
+        if predictions_adv is not None:
+            (K.categorical_crossentropy(y, model)+K.categorical_crossentropy(y, predictions_adv))/2
         return K.categorical_crossentropy(y, model)
 
 def model_train(model, x, y, predictions, X_train, Y_train, save=False,
@@ -34,11 +44,9 @@ def model_train(model, x, y, predictions, X_train, Y_train, save=False,
     print "Starting model training using TensorFlow."
 
     # Define loss
-    loss = k_model_loss(y, predictions)
-    if predictions_adv is not None:
-        loss = (loss + k_model_loss(y, predictions_adv)) / 2
+    loss = lambda y,predictions: k_model_loss(y, predictions, predictions_adv = predictions_adv)
 
-    optimizer = AdadeltaOptimizer(lr=FLAGS.learning_rate, rho=0.95, epsilon=1e-08)
+    optimizer = Adadelta(lr=FLAGS.learning_rate, rho=0.95, epsilon=1e-08)
     model.compile(optimizer = optimizer,loss = loss)
     # train_step = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(loss)
     print "Defined optimizer."
@@ -47,6 +55,8 @@ def model_train(model, x, y, predictions, X_train, Y_train, save=False,
 
     for epoch in xrange(FLAGS.nb_epochs):
         print("Epoch " + str(epoch))
+
+
 
         # Compute number of batches
         nb_batches = int(math.ceil(float(len(X_train)) / FLAGS.batch_size))
@@ -89,7 +99,7 @@ def model_eval(x, y, model, X_test, Y_test):
     :return: a float with the accuracy value
     """
     # Define sympbolic for accuracy
-    acc_value = keras.metrics.categorical_accuracy(y, model)
+    acc_value = categorical_accuracy(y, model)
 
     # Init result var
     accuracy = 0.0
@@ -113,7 +123,7 @@ def model_eval(x, y, model, X_test, Y_test):
         # account for variable batch size here
         accuracy += cur_batch_size * acc_value.eval(feed_dict={x: X_test[start:end],
                                         y: Y_test[start:end],
-                                        keras.backend.learning_phase(): 0})
+                                        K.learning_phase(): 0})
     assert end >= len(X_test)
 
     # Divide by number of examples to get final value
@@ -150,7 +160,7 @@ def batch_eval(tf_inputs, tf_outputs, numpy_inputs):
             assert e.shape[0] == cur_batch_size
 
         feed_dict = dict(zip(tf_inputs, numpy_input_batches))
-        feed_dict[keras.backend.learning_phase()] = 0
+        feed_dict[K.learning_phase()] = 0
         numpy_output_batches = tf_outputs.eval(feed_dict=feed_dict)
         for e in numpy_output_batches:
             assert e.shape[0] == cur_batch_size, e.shape
@@ -161,3 +171,23 @@ def batch_eval(tf_inputs, tf_outputs, numpy_inputs):
     for e in out:
         assert e.shape[0] == m, e.shape
     return out
+
+def batch_indices(batch_nb, data_length, batch_size):
+    """
+    This helper function computes a batch start and end index
+    :param batch_nb: the batch number
+    :param data_length: the total length of the data being parsed by batches
+    :param batch_size: the number of inputs in each batch
+    :return: pair of (start, end) indices
+    """
+    # Batch start and end index
+    start = int(batch_nb * batch_size)
+    end = int((batch_nb + 1) * batch_size)
+
+    # When there are not enough inputs left, we reuse some to complete the batch
+    if end > data_length:
+        shift = end - data_length
+        start -= shift
+        end -= shift
+
+    return start, end

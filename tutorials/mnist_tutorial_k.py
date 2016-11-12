@@ -1,27 +1,28 @@
 import keras
 from keras import backend as K
+import sys
+sys.path.insert(0,"..")
 
-import tensorflow as tf
-from tensorflow.python.platform import app
-from tensorflow.python.platform import flags
+from google.apputils import app
+import gflags
 
-from cleverhans.utils_mnist import data_mnist, model_mnist
+FLAGS = gflags.FLAGS
+
+gflags.DEFINE_string('train_dir', '/tmp', 'Directory storing the saved model.')
+gflags.DEFINE_string('filename', 'mnist.ckpt', 'Filename to save model under.')
+gflags.DEFINE_integer('nb_epochs', 6, 'Number of epochs to train model')
+gflags.DEFINE_integer('batch_size', 128, 'Size of training batches')
+gflags.DEFINE_integer('nb_classes', 10, 'Number of classification classes')
+gflags.DEFINE_integer('img_rows', 28, 'Input row dimension')
+gflags.DEFINE_integer('img_cols', 28, 'Input column dimension')
+gflags.DEFINE_integer('nb_filters', 64, 'Number of convolutional filter to use')
+gflags.DEFINE_integer('nb_pool', 2, 'Size of pooling area for max pooling')
+gflags.DEFINE_float('learning_rate', 0.1, 'Learning rate for training')
+
+from cleverhans.utils_mnist_k import data_mnist, model_mnist
 # from cleverhans.utils_tf import tf_model_train, tf_model_eval, batch_eval
-from cleverhans.utils_k import model_train, model_eval, batch_eval
-from cleverhans.attacks import fgsm
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_string('train_dir', '/tmp', 'Directory storing the saved model.')
-flags.DEFINE_string('filename', 'mnist.ckpt', 'Filename to save model under.')
-flags.DEFINE_integer('nb_epochs', 6, 'Number of epochs to train model')
-flags.DEFINE_integer('batch_size', 128, 'Size of training batches')
-flags.DEFINE_integer('nb_classes', 10, 'Number of classification classes')
-flags.DEFINE_integer('img_rows', 28, 'Input row dimension')
-flags.DEFINE_integer('img_cols', 28, 'Input column dimension')
-flags.DEFINE_integer('nb_filters', 64, 'Number of convolutional filter to use')
-flags.DEFINE_integer('nb_pool', 2, 'Size of pooling area for max pooling')
-flags.DEFINE_float('learning_rate', 0.1, 'Learning rate for training')
+from cleverhans.utils import model_train, model_eval, batch_eval
+from cleverhans.attacks_k import fgsm
 
 
 def main(argv=None):
@@ -33,10 +34,10 @@ def main(argv=None):
     if keras.backend.image_dim_ordering() != 'th':
         keras.backend.set_image_dim_ordering('th')
         print "INFO: '~/.keras/keras.json' sets 'image_dim_ordering' to 'tf', temporarily setting to 'th'"
-
+    #TODO:Verify all works then remove
     # Create TF session and set as Keras backend session
-    sess = K.get_session()
-    print "Created TensorFlow session and set Keras backend."
+    #sess = K.get_session()
+    #print "Created TensorFlow session and set Keras backend."
 
     # Get MNIST test data
     X_train, Y_train, X_test, Y_test = data_mnist()
@@ -76,7 +77,7 @@ def main(argv=None):
     predictions_2_adv = model_2(adv_x_2)
 
     # Perform adversarial training
-    model_train(sess, x, y, predictions_2, X_train, Y_train, predictions_adv=predictions_2_adv)
+    model_train(model_2, x, y, predictions_2, X_train, Y_train, predictions_adv=predictions_2_adv)
 
     # Evaluate the accuracy of the adversarialy trained MNIST model on
     # legitimate test examples
@@ -94,4 +95,4 @@ def main(argv=None):
     print'Test accuracy on adversarial examples: ' + str(accuracy_adv)
 
 if __name__ == '__main__':
-    main()
+    app.run()
