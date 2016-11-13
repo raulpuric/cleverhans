@@ -100,6 +100,7 @@ def model_eval(x, y, model, X_test, Y_test):
     """
     # Define sympbolic for accuracy
     acc_value = categorical_accuracy(y, model)
+    print acc_value
 
     # Init result var
     accuracy = 0.0
@@ -121,9 +122,8 @@ def model_eval(x, y, model, X_test, Y_test):
 
         # The last batch may be smaller than all others, so we need to
         # account for variable batch size here
-        accuracy += cur_batch_size * acc_value.eval(feed_dict={x: X_test[start:end],
-                                        y: Y_test[start:end],
-                                        K.learning_phase(): 0})
+        accuracy += cur_batch_size * acc_value.eval({'y_true':X_test[start:end],
+                                        'y_pred':Y_test[start:end]})
     assert end >= len(X_test)
 
     # Divide by number of examples to get final value
@@ -161,7 +161,7 @@ def batch_eval(tf_inputs, tf_outputs, numpy_inputs):
 
         feed_dict = dict(zip(tf_inputs, numpy_input_batches))
         feed_dict[K.learning_phase()] = 0
-        numpy_output_batches = tf_outputs.eval(feed_dict=feed_dict)
+        numpy_output_batches = tf_outputs.evaluate(numpy_input_batches[0],numpy_input_batches[1])
         for e in numpy_output_batches:
             assert e.shape[0] == cur_batch_size, e.shape
         for out_elem, numpy_output_batch in zip(out, numpy_output_batches):
