@@ -1,6 +1,7 @@
 from keras import backend as K
 from keras.optimizers import Adadelta
 from keras.metrics import categorical_accuracy
+import numpy as np
 import math
 import time
 
@@ -23,7 +24,7 @@ def k_model_loss(y, model, mean=True, predictions_adv=None):
     else:
         # Return a vector with the loss per sample
         if predictions_adv is not None:
-            (K.categorical_crossentropy(y, model)+K.categorical_crossentropy(y, predictions_adv))/2
+            return (K.categorical_crossentropy(y, model)+K.categorical_crossentropy(y, predictions_adv))/2
         return K.categorical_crossentropy(y, model)
 
 def model_train(model, x, y, predictions, X_train, Y_train, save=False,
@@ -88,7 +89,7 @@ def model_train(model, x, y, predictions, X_train, Y_train, save=False,
         print "Completed model training."
 
     return True
-def model_eval(x, y, model, X_test, Y_test):
+def model_eval(x, y, model, X_test, Y_test, back='th'):
     """
     Compute the accuracy of a TF model on some data
     :param x: input placeholder
@@ -99,8 +100,9 @@ def model_eval(x, y, model, X_test, Y_test):
     :return: a float with the accuracy value
     """
     # Define sympbolic for accuracy
-    acc_value = categorical_accuracy(y, model)
-    print acc_value
+    input_shape = (None,FLAGS.img_rows,FLAGS.img_cols)
+    acc_value = categorical_accuracy( y,model)
+    acc_value = K.function([x,y,K.learning_phase()],acc_value)
 
     # Init result var
     accuracy = 0.0
@@ -122,8 +124,10 @@ def model_eval(x, y, model, X_test, Y_test):
 
         # The last batch may be smaller than all others, so we need to
         # account for variable batch size here
-        accuracy += cur_batch_size * acc_value.eval({'y_true':X_test[start:end],
-                                        'y_pred':Y_test[start:end]})
+        if back=='tf':
+            accuracy += cur_batch_size * acc_value.eval(feed_dict={x:X_test[start:end],y:Y_test[start:end]})
+        elif back=='th':
+            accuracy += cur_batch_size * acc_value([X_test[start:end],Y_test[start:end],0])
     assert end >= len(X_test)
 
     # Divide by number of examples to get final value
@@ -145,6 +149,8 @@ def batch_eval(tf_inputs, tf_outputs, numpy_inputs):
     for _ in tf_outputs:
         out.append([])
 
+    eval_func = K.function(tf_inputs+[K.learning_phase()],tf_outputs)
+
     for start in xrange(0, m, FLAGS.batch_size):
         batch = start // FLAGS.batch_size
         if batch % 100 == 0 and batch > 0:
@@ -158,10 +164,7 @@ def batch_eval(tf_inputs, tf_outputs, numpy_inputs):
         assert cur_batch_size <= FLAGS.batch_size
         for e in numpy_input_batches:
             assert e.shape[0] == cur_batch_size
-
-        feed_dict = dict(zip(tf_inputs, numpy_input_batches))
-        feed_dict[K.learning_phase()] = 0
-        numpy_output_batches = tf_outputs.evaluate(numpy_input_batches[0],numpy_input_batches[1])
+        numpy_output_batches = eval_func(numpy_input_batches+[0])
         for e in numpy_output_batches:
             assert e.shape[0] == cur_batch_size, e.shape
         for out_elem, numpy_output_batch in zip(out, numpy_output_batches):
