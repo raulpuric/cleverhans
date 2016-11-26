@@ -4,7 +4,6 @@ sys.path.insert(0,"..")
 
 from google.apputils import app
 import gflags
-from sklearn.svm import SVC
 import numpy as np
 import keras
 from keras import backend as K
@@ -28,7 +27,6 @@ def main(argv=None):
     
     # Train an MNIST model
     layers=['activation_1','activation_2','maxpooling2d_1','dropout_1','activation_3','dropout_2','activation_4']
-    clf = SVC(kernel=FLAGS.kernel,degree=FLAGS.degree)
     optimizer = Adadelta(lr=FLAGS.learning_rate, rho=0.95, epsilon=1e-08)
 
     for i,layer in enumerate(layers):
@@ -45,7 +43,7 @@ def main(argv=None):
         test=pkl.load(open('test_act_'+str(i)+'.pkl','rb'))
         y=np.concatenate([np.zeros(test_adv.shape[0]),np.ones(test.shape[0])],axis=0)
         x=np.concatenate([test_adv,test],axis=0)
-        print 'test_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch)+' for '+layer
+        print 'test_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch))+' for '+layer
         clf.save_weights('mnist_svc_'+layer+'.h5')
     
 
