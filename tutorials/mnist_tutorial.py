@@ -4,6 +4,9 @@ import tensorflow as tf
 from tensorflow.python.platform import app
 from tensorflow.python.platform import flags
 
+import sys
+sys.path.insert(0,'../')
+
 from cleverhans.utils_mnist import data_mnist, model_mnist
 from cleverhans.utils_tf import tf_model_train, tf_model_eval, batch_eval
 from cleverhans.attacks import fgsm
