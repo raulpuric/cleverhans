@@ -66,10 +66,14 @@ def main(argv=None):
 
     X_test = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test])
     X_train = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train])
-    pkl.dump(X_train_adv,open('train_adv_act.pkl','wb'))
-    pkl.dump(X_train,open('train_act.pkl','wb'))
-    pkl.dump(X_test_adv,open('test_adv_act.pkl','wb')) 
-    pkl.dump(X_test,open('test_adv_act.pkl','wb')) 
+    for i,act in enumerate(X_train_adv):
+        pkl.dump(act,open('train_adv_act_'+str(i)+'.pkl','wb'))
+    for i,act in enumerate(X_train):
+        pkl.dump(act,open('train_act_'+str(i)+'.pkl','wb'))
+    for i,act in enumerate(X_test_adv):
+        pkl.dump(act,open('test_adv_act_'+str(i)+'.pkl','wb'))
+    for i,act in enumerate(X_test):
+        pkl.dump(act,open('test_act_'+str(i)+'.pkl','wb'))
     
 
 if __name__ == '__main__':
