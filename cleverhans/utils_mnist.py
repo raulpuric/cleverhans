@@ -42,19 +42,18 @@ def model_mnist():
 
     model.add(Convolution2D(FLAGS.nb_filters, 5, 5,
                             border_mode='valid',
-                            input_shape=(1, FLAGS.img_rows, FLAGS.img_cols)),
-                            name='conv1')
-    model.add(Activation('relu'),name='rel1')
+                            input_shape=(1, FLAGS.img_rows, FLAGS.img_cols), name='conv1'))
+    model.add(Activation('relu',name='rel1'))
     model.add(Convolution2D(FLAGS.nb_filters, 3, 3))
-    model.add(Activation('relu'),name='rel2')
-    model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool)),name='maxpool')
-    model.add(Dropout(0.25),name='dropout1')
+    model.add(Activation('relu',name='rel2'))
+    model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool),name='maxpool'))
+    model.add(Dropout(0.25,name='dropout1'))
 
     model.add(Flatten())
     model.add(Dense(128))
-    model.add(Activation('relu'),name='rel3')
-    model.add(Dropout(0.5),name='droupout2')
+    model.add(Activation('relu',name='rel3'))
+    model.add(Dropout(0.5,name='droupout2'))
     model.add(Dense(FLAGS.nb_classes))
-    model.add(Activation('softmax'),name='softmax')
+    model.add(Activation('softmax',name='softmax'))
 
     return model
