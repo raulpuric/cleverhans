@@ -17,6 +17,7 @@ FLAGS = gflags.FLAGS
 
 gflags.DEFINE_integer('batch', 128, 'batch_size')
 gflags.DEFINE_integer('epochs', 5, 'num_epochs')
+gflags.DEFINE_float('learning_rate',.01,'learning_rate')
 
 
 def main(argv=None):
