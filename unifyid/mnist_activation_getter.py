@@ -61,13 +61,15 @@ def main(argv=None):
     X_train_adv=pkl.load(open('train_adv.pkl','rb'))
     X_test_adv=pkl.load(open('test_adv.pkl','rb'))
     
-    X_test_adv, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_test_adv])
-    X_train_adv, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_train_adv])
+    X_test_adv = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test_adv])
+    X_train_adv = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train_adv])
 
-    X_test, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_test])
-    X_train, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_train])
-    pkl.dump(X_train_adv,open('train_adv.pkl','wb'))
-    pkl.dump(X_test_adv,open('test_adv.pkl','wb')) 
+    X_test = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test])
+    X_train = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train])
+    pkl.dump(X_train_adv,open('train_adv_act.pkl','wb'))
+    pkl.dump(X_train,open('train_act.pkl','wb'))
+    pkl.dump(X_test_adv,open('test_adv_act.pkl','wb')) 
+    pkl.dump(X_test,open('test_adv_act.pkl','wb')) 
     
 
 if __name__ == '__main__':
