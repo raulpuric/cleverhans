@@ -55,7 +55,7 @@ def main(argv=None):
     print "Defined TensorFlow model graph."
 
     # Train an MNIST model
-    layers=['rel1','rel2','maxpool','dropout1','rel3','dropout2','softmax']
+    layers=['activation_1','activation_2','maxpooling2d_1','dropout_1','activation_3','dropout_2','activation_4']
     
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
     X_train_adv=pkl.load(open('train_adv.pkl','rb'))
