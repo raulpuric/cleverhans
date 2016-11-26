@@ -81,9 +81,9 @@ def model_train(model, x, y, predictions, X_train, Y_train, save=False,
 
 
     if save:
-        # save_path = os.path.join(FLAGS.train_dir, FLAGS.filename)
+        save_path = os.path.join(FLAGS.train_dir, FLAGS.filename)
         # saver = tf.train.Saver()
-        # saver.save(sess, save_path)
+        model.save_weights("model.h5")
         print "Completed model training and model saved at:" + str(save_path)
     else:
         print "Completed model training."
