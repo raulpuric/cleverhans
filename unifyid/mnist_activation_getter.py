@@ -50,16 +50,22 @@ def main(argv=None):
 
     # Define TF model graph
     model = model_mnist()
+    model.load_weights('model.h5')
     predictions = model(x)
     print "Defined TensorFlow model graph."
 
     # Train an MNIST model
-    model_train(model, x, y, predictions, X_train, Y_train,save=True)
-
+    layers=['rel1','rel2','maxpool','dropout1','rel3','dropout2','softmax']
+    
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
-    adv_x = fgsm(x, predictions, eps=0.3)
-    X_test_adv, = batch_eval( [x], [adv_x], [X_test])
-    X_train_adv, = batch_eval( [x], [adv_x], [X_train])
+    X_train_adv=pkl.load(open('train_adv.pkl','rb'))
+    X_test_adv=pkl.load(open('test_adv.pkl','rb'))
+    
+    X_test_adv, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_test_adv])
+    X_train_adv, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_train_adv])
+
+    X_test, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_test])
+    X_train, = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output(train=False),layers), [X_train])
     pkl.dump(X_train_adv,open('train_adv.pkl','wb'))
     pkl.dump(X_test_adv,open('test_adv.pkl','wb')) 
     
