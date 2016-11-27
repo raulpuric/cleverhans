@@ -21,7 +21,7 @@ gflags.DEFINE_integer('nb_pool', 2, 'Size of pooling area for max pooling')
 gflags.DEFINE_float('learning_rate', 0.1, 'Learning rate for training')
 gflags.DEFINE_string('model','',"with dropout '' or no dropout 'nd'")
 
-from cleverhans.utils_mnist_k import data_mnist, model_mnist
+from cleverhans.utils_mnist_k import data_mnist, model_mnist, model_mnist_nd
 # from cleverhans.utils_tf import tf_model_train, tf_model_eval, batch_eval
 from cleverhans.utils import model_train, model_eval, batch_eval
 from cleverhans.attacks_k import fgsm
