@@ -1,3 +1,5 @@
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 def generate_roc(y_test, y_score,name=None):
@@ -15,5 +17,6 @@ def generate_roc(y_test, y_score,name=None):
     plt.title('Receiver operating characteristic curve')
     if name is not None:
         plt.savefig(name)
-    plt.show()
+    else:
+        plt.show()
     print('AUC: %f' % roc_auc)

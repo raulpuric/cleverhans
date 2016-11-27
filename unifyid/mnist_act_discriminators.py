@@ -1,7 +1,7 @@
 import keras
 from keras import backend as K
 from keras.models import Model, Sequential
-from keras.layers import Dense
+from keras.layers import Dense,Activation
 
 def LinearSVC(input_shape):
 	model = Sequential()
