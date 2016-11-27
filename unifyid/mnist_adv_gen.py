@@ -1,8 +1,8 @@
 import keras
 from keras import backend as K
 import sys
-import pickle as pkl
 sys.path.insert(0,"..")
+import h5py as h5
 
 from google.apputils import app
 import gflags
@@ -19,6 +19,7 @@ gflags.DEFINE_integer('img_cols', 28, 'Input column dimension')
 gflags.DEFINE_integer('nb_filters', 64, 'Number of convolutional filter to use')
 gflags.DEFINE_integer('nb_pool', 2, 'Size of pooling area for max pooling')
 gflags.DEFINE_float('learning_rate', 0.1, 'Learning rate for training')
+gflags.DEFINE_string('model','',"with dropout '' or no dropout 'nd'")
 
 from cleverhans.utils_mnist_k import data_mnist, model_mnist
 # from cleverhans.utils_tf import tf_model_train, tf_model_eval, batch_eval
@@ -49,7 +50,10 @@ def main(argv=None):
     y = K.placeholder(shape=(None, FLAGS.nb_classes), dtype='float32')
 
     # Define TF model graph
-    model = model_mnist()
+    if FLAGS.model=='nd':
+        model=model_mnist_nd()
+    else:
+        model = model_mnist()
     predictions = model(x)
     print "Defined TensorFlow model graph."
 
@@ -60,8 +64,10 @@ def main(argv=None):
     adv_x = fgsm(x, predictions, eps=0.3)
     X_test_adv, = batch_eval( [x], [adv_x], [X_test])
     X_train_adv, = batch_eval( [x], [adv_x], [X_train])
-    pkl.dump(X_train_adv,open('train_adv.pkl','wb'))
-    pkl.dump(X_test_adv,open('test_adv.pkl','wb')) 
+    with h5.File('train_adv.h5','wb') as f:
+        f.create_dataset('data',data=X_train_adv)
+    with h5.File('test_adv.h5','wb') as f:
+        f.create_dataset('data',data=X_test_adv)
     
 
 if __name__ == '__main__':

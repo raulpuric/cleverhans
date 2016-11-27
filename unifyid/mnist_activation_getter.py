@@ -6,6 +6,7 @@ sys.path.insert(0,"..")
 
 from google.apputils import app
 import gflags
+import h5py as h5
 
 FLAGS = gflags.FLAGS
 
@@ -19,6 +20,7 @@ gflags.DEFINE_integer('img_cols', 28, 'Input column dimension')
 gflags.DEFINE_integer('nb_filters', 64, 'Number of convolutional filter to use')
 gflags.DEFINE_integer('nb_pool', 2, 'Size of pooling area for max pooling')
 gflags.DEFINE_float('learning_rate', 0.1, 'Learning rate for training')
+gflags.DEFINE_string('model','',"with dropout '' or no dropout 'nd'")
 
 from cleverhans.utils_mnist_k import data_mnist, model_mnist
 # from cleverhans.utils_tf import tf_model_train, tf_model_eval, batch_eval
@@ -55,11 +57,18 @@ def main(argv=None):
     print "Defined TensorFlow model graph."
 
     # Train an MNIST model
-    layers=['activation_1','activation_2','maxpooling2d_1','dropout_1','activation_3','dropout_2','activation_4']
+    if FLAGS.model=='nd':
+        layers=['activation_1','activation_2','maxpooling2d_1','activation_3','activation_4']
+    else:
+        layers=['activation_1','activation_2','maxpooling2d_1','dropout_1','activation_3','dropout_2','activation_4']
     
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
-    X_train_adv=pkl.load(open('train_adv.pkl','rb'))
-    X_test_adv=pkl.load(open('test_adv.pkl','rb'))
+    with h5.File('train_adv.h5','rb') as f:
+        X_train_adv=f['data']
+    with h5.File('test_adv.h5','rb') as f:
+        X_test_adv=f['data']
+    # X_train_adv=pkl.load(open('train_adv.pkl','rb'))
+    # X_test_adv=pkl.load(open('test_adv.pkl','rb'))
     
     X_test_adv = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test_adv])
     X_train_adv = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train_adv])
@@ -67,13 +76,21 @@ def main(argv=None):
     X_test = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test])
     X_train = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train])
     for i,act in enumerate(X_train_adv):
-        pkl.dump(act,open('train_adv_act_'+str(layers[i])+'.pkl','wb'))
+        with h5.File('train_adv_act_'+str(layers[i])+'.h5','wb') as f:
+            f.create_dataset('data',data=act)
+        # pkl.dump(act,open('train_adv_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_train):
-        pkl.dump(act,open('train_act_'+str(layers[i])+'.pkl','wb'))
+        with h5.File('train_act_'+str(layers[i])+'.h5','wb') as f:
+            f.create_dataset('data',data=act)
+        # pkl.dump(act,open('train_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_test_adv):
-        pkl.dump(act,open('test_adv_act_'+str(layers[i])+'.pkl','wb'))
+        with h5.File('test_adv_act_'+str(layers[i])+'.h5','wb') as f:
+            f.create_dataset('data',data=act)
+        # pkl.dump(act,open('test_adv_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_test):
-        pkl.dump(act,open('test_act_'+str(layers[i])+'.pkl','wb'))
+        with h5.File('test_act_'+str(layers[i])+'.h5','wb') as f:
+            f.create_dataset('data',data=act)
+        # pkl.dump(act,open('test_act_'+str(layers[i])+'.pkl','wb'))
     
 
 if __name__ == '__main__':
