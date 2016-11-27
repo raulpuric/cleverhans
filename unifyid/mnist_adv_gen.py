@@ -64,9 +64,9 @@ def main(argv=None):
     adv_x = fgsm(x, predictions, eps=0.3)
     X_test_adv, = batch_eval( [x], [adv_x], [X_test])
     X_train_adv, = batch_eval( [x], [adv_x], [X_train])
-    with h5.File('train_adv.h5','wb') as f:
+    with h5.File('train_adv.h5','w') as f:
         f.create_dataset('data',data=X_train_adv)
-    with h5.File('test_adv.h5','wb') as f:
+    with h5.File('test_adv.h5','w') as f:
         f.create_dataset('data',data=X_test_adv)
     
 

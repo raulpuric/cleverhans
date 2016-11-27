@@ -63,9 +63,9 @@ def main(argv=None):
         layers=['activation_1','activation_2','maxpooling2d_1','dropout_1','activation_3','dropout_2','activation_4']
     
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
-    with h5.File('train_adv.h5','rb') as f:
+    with h5.File('train_adv.h5','r') as f:
         X_train_adv=f['data']
-    with h5.File('test_adv.h5','rb') as f:
+    with h5.File('test_adv.h5','r') as f:
         X_test_adv=f['data']
     # X_train_adv=pkl.load(open('train_adv.pkl','rb'))
     # X_test_adv=pkl.load(open('test_adv.pkl','rb'))
@@ -76,19 +76,19 @@ def main(argv=None):
     X_test = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_test])
     X_train = batch_eval( [model.layers[0].input], map(lambda x:model.get_layer(x).output,layers), [X_train])
     for i,act in enumerate(X_train_adv):
-        with h5.File('train_adv_act_'+str(layers[i])+'.h5','wb') as f:
+        with h5.File('train_adv_act_'+str(layers[i])+'.h5','w') as f:
             f.create_dataset('data',data=act)
         # pkl.dump(act,open('train_adv_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_train):
-        with h5.File('train_act_'+str(layers[i])+'.h5','wb') as f:
+        with h5.File('train_act_'+str(layers[i])+'.h5','w') as f:
             f.create_dataset('data',data=act)
         # pkl.dump(act,open('train_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_test_adv):
-        with h5.File('test_adv_act_'+str(layers[i])+'.h5','wb') as f:
+        with h5.File('test_adv_act_'+str(layers[i])+'.h5','w') as f:
             f.create_dataset('data',data=act)
         # pkl.dump(act,open('test_adv_act_'+str(layers[i])+'.pkl','wb'))
     for i,act in enumerate(X_test):
-        with h5.File('test_act_'+str(layers[i])+'.h5','wb') as f:
+        with h5.File('test_act_'+str(layers[i])+'.h5','w') as f:
             f.create_dataset('data',data=act)
         # pkl.dump(act,open('test_act_'+str(layers[i])+'.pkl','wb'))
     

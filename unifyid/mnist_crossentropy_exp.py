@@ -39,9 +39,9 @@ def main(argv=None):
         return shape[0],reduce(lambda x,y:x*y,shape[1:])
 
     for i,layer in enumerate(layers):
-        with h5.File(open('train_adv_act_'+layer+'.h5','rb')) as f:
+        with h5.File(open('train_adv_act_'+layer+'.h5','r')) as f:
             train_adv=f['data']
-        with h5.File(open('train_act_'+layer+'.h5','rb')) as f:
+        with h5.File(open('train_act_'+layer+'.h5','r')) as f:
             train=f['data']
         # train_adv=pkl.load(open('train_adv_act_'+str(i)+'.pkl','rb'))
         # train=pkl.load(open('train_act_'+str(i)+'.pkl','rb'))
@@ -59,9 +59,9 @@ def main(argv=None):
         print 'train_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch))+' for '+layer
         predicts=clf.predict(x)
         generate_roc(y,predicts, 'simple_cross_entropy_'+FLAGS.model+'_train_'+str(layer)+'.png')
-        with h5.File(open('test_adv_act_'+layer+'.h5','rb')) as f:
+        with h5.File(open('test_adv_act_'+layer+'.h5','r')) as f:
             test_adv=f['data']
-        with h5.File(open('test_act_'+layer+'.h5','rb')) as f:
+        with h5.File(open('test_act_'+layer+'.h5','r')) as f:
             test=f['data']
         # test_adv=pkl.load(open('test_adv_act_'+str(i)+'.pkl','rb'))
         # test=pkl.load(open('test_act_'+str(i)+'.pkl','rb'))
