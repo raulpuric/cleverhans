@@ -37,16 +37,25 @@ def main(argv=None):
 
         train_adv=pkl.load(open('train_adv_act_'+str(i)+'.pkl','rb'))
         train=pkl.load(open('train_act_'+str(i)+'.pkl','rb'))
-        y=np.concatenate([np.zeros(train_adv.shape[0]),np.ones(train.shape[0])],axis=0)
+        y_1 = np.zeros([train_adv.shape[0],2])
+        y_1[:,0]=1
+        y_2 = np.zeros([train.shape[0],2])
+        y_2[:,1]=1
+        y=np.concatenate([y_1,y_2],axis=0)
         x=np.concatenate([train_adv,train],axis=0)
         x=x.reshape(reduce_shape(x.shape))
-        clf = LinearSVC(x.shape[1:])
-        clf.compile(loss='hinge',optimizer=optimizer,metrics=['binary_accuracy'])
-        clf.fit(x,y,batch_size=FLAGS.batch,nb_epochs=FLAGS.epochs)
+        print x.shape[1]
+        clf = LinearSVC(x.shape[1])
+        clf.compile(loss='hinge',optimizer=optimizer,metrics=['categorical_accuracy'])
+        clf.fit(x,y,batch_size=FLAGS.batch,nb_epoch=FLAGS.epochs)
         print 'train_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch))+' for '+layer
         test_adv=pkl.load(open('test_adv_act_'+str(i)+'.pkl','rb'))
         test=pkl.load(open('test_act_'+str(i)+'.pkl','rb'))
-        y=np.concatenate([np.zeros(test_adv.shape[0]),np.ones(test.shape[0])],axis=0)
+        y_1 = np.zeros([test_adv.shape[0],2])
+        y_1[:,0]=1
+        y_2 = np.zeros([test.shape[0],2])
+        y_2[:,1]=1
+        y=np.concatenate([y_1,y_2],axis=0)
         x=np.concatenate([test_adv,test],axis=0)
         x=x.reshape(reduce_shape(x.shape))
         print 'test_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch))+' for '+layer

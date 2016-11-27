@@ -5,5 +5,5 @@ from keras.layers import Dense
 
 def LinearSVC(input_shape):
 	model = Sequential()
-	model.add(Dense(2, input_shape=input_shape))
+	model.add(Dense(2, input_dim=input_shape))
 	return model
