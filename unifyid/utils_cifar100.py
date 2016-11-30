@@ -49,14 +49,6 @@ def model_cifar100():
     model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool),name='maxpool'))
     model.add(Dropout(0.25,name='dropout1'))
     #conv block2
-    model.add(Convolution2D(FLAGS.nb_filters, 3, 3,
-                            border_mode='same')
-    model.add(Activation('relu',name='rel2_1'))
-    model.add(Convolution2D(FLAGS.nb_filters, 3, 3),border_mode='same',border_mode='same')
-    model.add(Activation('relu',name='rel2_2'))
-    model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool),name='maxpool2'))
-    model.add(Dropout(0.25,name='dropout2'))
-    #conv block3
     model.add(Convolution2D(FLAGS.nb_filters*2, 3, 3,
                             border_mode='same')
     model.add(Activation('relu',name='rel3_1'))
@@ -64,14 +56,7 @@ def model_cifar100():
     model.add(Activation('relu',name='rel3_2'))
     model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool),name='maxpool3'))
     model.add(Dropout(0.25,name='dropout3'))
-    #conv block4
-    model.add(Convolution2D(FLAGS.nb_filters*2, 3, 3,
-                            border_mode='same')
-    model.add(Activation('relu',name='rel4_1'))
-    model.add(Convolution2D(FLAGS.nb_filters*2, 3, 3),border_mode='same')
-    model.add(Activation('relu',name='rel4_2'))
-    model.add(MaxPooling2D(pool_size=(FLAGS.nb_pool, FLAGS.nb_pool),name='maxpool4'))
-    model.add(Dropout(0.25,name='dropout4'))
+
     #FC block
     model.add(Flatten())
     model.add(Dense(512))

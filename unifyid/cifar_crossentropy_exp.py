@@ -32,7 +32,7 @@ def main(argv=None):
     if FLAGS.model=='nd':
         layers=['activation_1','activation_2','maxpooling2d_1','activation_3','activation_4']
     else:
-        layers=['maxpool','maxpool2','maxpool3','maxpool4','droupout_last','softmax']
+        layers=['dropout1','dropout3','droupout_last','softmax']
     optimizer = Adadelta(lr=FLAGS.learning_rate, rho=0.95, epsilon=1e-08)
 
     def reduce_shape(shape):
