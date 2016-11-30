@@ -64,9 +64,9 @@ def main(argv=None):
     
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
     with h5.File('train_adv.h5','r') as f:
-        X_train_adv=f['data']
+        X_train_adv=f['data'][:]
     with h5.File('test_adv.h5','r') as f:
-        X_test_adv=f['data']
+        X_test_adv=f['data'][:]
     # X_train_adv=pkl.load(open('train_adv.pkl','rb'))
     # X_test_adv=pkl.load(open('test_adv.pkl','rb'))
     

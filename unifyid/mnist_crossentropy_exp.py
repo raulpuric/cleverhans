@@ -17,7 +17,7 @@ from generate_results import *
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_integer('batch', 128, 'batch_size')
+gflags.DEFINE_integer('batch', 16, 'batch_size')
 gflags.DEFINE_integer('epochs', 15, 'num_epochs')
 gflags.DEFINE_float('learning_rate',.01,'learning_rate')
 gflags.DEFINE_string('model','',"with dropout '' or no dropout 'nd'")
@@ -39,10 +39,10 @@ def main(argv=None):
         return shape[0],reduce(lambda x,y:x*y,shape[1:])
 
     for i,layer in enumerate(layers):
-        with h5.File(open('train_adv_act_'+layer+'.h5','r')) as f:
-            train_adv=f['data']
-        with h5.File(open('train_act_'+layer+'.h5','r')) as f:
-            train=f['data']
+        with h5.File('train_adv_act_'+layer+'.h5','r') as f:
+            train_adv=f['data'][:]
+        with h5.File('train_act_'+layer+'.h5','r') as f:
+            train=f['data'][:]
         # train_adv=pkl.load(open('train_adv_act_'+str(i)+'.pkl','rb'))
         # train=pkl.load(open('train_act_'+str(i)+'.pkl','rb'))
         y_1 = np.zeros([train_adv.shape[0],2])
@@ -59,10 +59,10 @@ def main(argv=None):
         print 'train_accuracy: '+str(clf.evaluate(x,y,batch_size=FLAGS.batch))+' for '+layer
         predicts=clf.predict(x)
         generate_roc(y,predicts, 'simple_cross_entropy_'+FLAGS.model+'_train_'+str(layer)+'.png')
-        with h5.File(open('test_adv_act_'+layer+'.h5','r')) as f:
-            test_adv=f['data']
-        with h5.File(open('test_act_'+layer+'.h5','r')) as f:
-            test=f['data']
+        with h5.File('test_adv_act_'+layer+'.h5','r') as f:
+            test_adv=f['data'][:]
+        with h5.File('test_act_'+layer+'.h5','r') as f:
+            test=f['data'][:]
         # test_adv=pkl.load(open('test_adv_act_'+str(i)+'.pkl','rb'))
         # test=pkl.load(open('test_act_'+str(i)+'.pkl','rb'))
         y_1 = np.zeros([test_adv.shape[0],2])

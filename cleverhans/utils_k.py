@@ -102,7 +102,7 @@ def model_eval(x, y, model, X_test, Y_test, back='th'):
     # Define sympbolic for accuracy
     input_shape = (None,FLAGS.img_rows,FLAGS.img_cols)
     acc_value = categorical_accuracy( y,model)
-    acc_value = K.function([x,y,K.learning_phase()],acc_value)
+    acc_value = K.function([x,y,K.learning_phase()],[acc_value])
 
     # Init result var
     accuracy = 0.0
@@ -127,7 +127,7 @@ def model_eval(x, y, model, X_test, Y_test, back='th'):
         if back=='tf':
             accuracy += cur_batch_size * acc_value.eval(feed_dict={x:X_test[start:end],y:Y_test[start:end]})
         elif back=='th':
-            accuracy += cur_batch_size * acc_value([X_test[start:end],Y_test[start:end],0])
+            accuracy += cur_batch_size * acc_value([X_test[start:end],Y_test[start:end],0])[0]
     assert end >= len(X_test)
 
     # Divide by number of examples to get final value

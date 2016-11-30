@@ -11,7 +11,7 @@ FLAGS = gflags.FLAGS
 
 gflags.DEFINE_string('train_dir', '/tmp', 'Directory storing the saved model.')
 gflags.DEFINE_string('filename', 'mnist.ckpt', 'Filename to save model under.')
-gflags.DEFINE_integer('nb_epochs', 6, 'Number of epochs to train model')
+gflags.DEFINE_integer('nb_epochs', 20, 'Number of epochs to train model')
 gflags.DEFINE_integer('batch_size', 128, 'Size of training batches')
 gflags.DEFINE_integer('nb_classes', 100, 'Number of classification classes')
 gflags.DEFINE_integer('img_rows', 32, 'Input row dimension')
@@ -59,10 +59,15 @@ def main(argv=None):
 
     # Train an MNIST model
     model_train(model, x, y, predictions, X_train, Y_train,save=True)
+    accuracy = model_eval( x, y, predictions, X_test, Y_test)
+    print 'Test accuracy on legitimate test examples: ' + str(accuracy) 
 
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
     adv_x = fgsm(x, predictions, eps=0.3)
     X_test_adv, = batch_eval( [x], [adv_x], [X_test])
+    accuracy = model_eval( x, y, predictions, X_test_adv, Y_test) 
+    print 'Test accuracy on adversarial test examples: ' + str(accuracy) 
+
     X_train_adv, = batch_eval( [x], [adv_x], [X_train])
     with h5.File('cifar_train_adv.h5','w') as f:
         f.create_dataset('data',data=X_train_adv)
