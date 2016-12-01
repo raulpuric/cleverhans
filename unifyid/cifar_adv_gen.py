@@ -54,6 +54,7 @@ def main(argv=None):
         model=model_mnist_nd()
     else:
         model = model_cifar100()
+    model.load_weights('model.h5')
     predictions = model(x)
     print "Defined TensorFlow model graph."
 

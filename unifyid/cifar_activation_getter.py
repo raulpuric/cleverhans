@@ -60,7 +60,7 @@ def main(argv=None):
     if FLAGS.model=='nd':
         layers=['activation_1','activation_2','maxpooling2d_1','activation_3','activation_4']
     else:
-        layers=['maxpool','maxpool2','maxpool3','maxpool4','droupout_last','softmax']
+        layers=['dropout1','dropout3','droupout_last','softmax']
     
     # Craft adversarial examples using Fast Gradient Sign Method (FGSM)
     with h5.File('cifar_train_adv.h5','r') as f:
