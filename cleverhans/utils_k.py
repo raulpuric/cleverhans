@@ -48,7 +48,8 @@ def model_train(model, x, y, predictions, X_train, Y_train, save=False,
     loss = lambda y,predictions: k_model_loss(y, predictions, predictions_adv = predictions_adv)
 
     optimizer = Adadelta(lr=FLAGS.learning_rate, rho=0.95, epsilon=1e-08)
-    model.compile(optimizer = optimizer,loss = loss)
+    #model.compile(optimizer = optimizer,loss = loss)
+    model.compile(optimizer = 'adam',loss = 'categorical_crossentropy',metrics=['accuracy'])
     # train_step = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(loss)
     print "Defined optimizer."
 
